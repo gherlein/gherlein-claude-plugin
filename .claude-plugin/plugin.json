@@ -1,0 +1,9 @@
+{
+  "name": "gherlein",
+  "description": "Engineering discipline skills: planning, code quality, Go, TypeScript, PostgreSQL, git workflow, debugging.",
+  "version": "1.0.0",
+  "author": { "name": "Greg Herlein" },
+  "homepage": "https://github.com/gherlein/claude-skills",
+  "repository": "https://github.com/gherlein/claude-skills",
+  "license": "MIT"
+}
