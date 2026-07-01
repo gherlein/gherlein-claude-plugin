@@ -17,6 +17,11 @@
 - Fix stale repo names in `README.md` and `plugin.json` (was `claude-skills`;
   now `gherlein-claude-plugin`) and correct the install command to
   `gherlein@gherlein-marketplace`.
+- Bundle the enforcement layer so the plugin is self-enforcing for anyone who
+  installs it: add `using-superpowers` (proactive skill discovery) and
+  `writing-skills` (skill authoring), both attributed to obra/superpowers, with
+  `writing-skills/anthropic-best-practices.md` credited to Anthropic. Plugin now
+  ships 41 skills.
 
 ## v1.0.0
 

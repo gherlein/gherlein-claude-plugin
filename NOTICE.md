@@ -30,8 +30,14 @@ Superpowers skills (namespace-rewritten and edited for this plugin). Each carrie
 - systematic-debugging
 - test-driven-development
 - using-git-worktrees
+- using-superpowers
 - verification-before-completion
 - writing-plans
+- writing-skills
+
+The file `skills/writing-skills/anthropic-best-practices.md` is derived from
+Anthropic's Claude Code skill-authoring documentation and is Copyright (c)
+Anthropic.
 
 All other skills in this plugin are original works Copyright (c) 2026 Greg Herlein.
 

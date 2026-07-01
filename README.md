@@ -20,6 +20,13 @@ explodes. (But do drop me a note if it helps — pay it forward.)
 
 Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 
+### Skill Framework
+
+| Skill | Purpose |
+|-------|---------|
+| `gherlein:using-superpowers` | Enforces proactive skill discovery and use before responding |
+| `gherlein:writing-skills` | How to author, edit, and test skills |
+
 ### Planning & Orchestration
 
 | Skill | Purpose |
