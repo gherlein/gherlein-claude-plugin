@@ -1,7 +1,7 @@
 {
   "name": "gherlein",
   "description": "Engineering discipline skills: planning, code quality, Go, TypeScript, PostgreSQL, git workflow, debugging.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": { "name": "Greg Herlein" },
   "homepage": "https://github.com/gherlein/gherlein-claude-plugin",
   "repository": "https://github.com/gherlein/gherlein-claude-plugin",
