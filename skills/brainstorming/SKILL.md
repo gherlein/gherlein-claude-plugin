@@ -2,6 +2,8 @@
 name: brainstorming
 description: "Use when explicitly invoked with /brainstorming. Explores user intent, requirements and design before implementation through collaborative dialogue."
 disable-model-invocation: true
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Brainstorming Ideas Into Designs
@@ -114,7 +116,7 @@ digraph brainstorming {
 
 - Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
-- Use elements-of-style:writing-clearly-and-concisely skill if available
+- Write the design clearly and concisely; use a writing-clarity skill if you have one available
 - Commit the design document to git
 
 **Spec Review Loop:**

@@ -1,6 +1,8 @@
 ---
 name: test-driven-development
 description: "Test-first development: write a failing test before implementation. Triggers on: implement a feature, fix a bug, add functionality, start coding a change, write code for X (write the test first)."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Test-Driven Development (TDD)

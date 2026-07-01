@@ -2,6 +2,8 @@
 name: dispatching-parallel-agents
 description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
 disable-model-invocation: true
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Dispatching Parallel Agents

@@ -1,6 +1,8 @@
 ---
 name: systematic-debugging
 description: "Disciplined debugging before proposing fixes (reproduce and find root cause first). Triggers on: any bug, test failure, unexpected behavior, it's broken, not working, an error message, before guessing at a fix."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Systematic Debugging
@@ -176,7 +178,7 @@ You MUST complete each phase before proceeding to the next.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - Use the `superpowers:test-driven-development` skill for writing proper failing tests
+   - Use the `gherlein:test-driven-development` skill for writing proper failing tests
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -284,8 +286,8 @@ These techniques are part of systematic debugging and available in this director
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
 
 **Related skills:**
-- **superpowers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
-- **superpowers:verification-before-completion** - Verify fix worked before claiming success
+- **gherlein:test-driven-development** - For creating failing test case (Phase 4, Step 1)
+- **gherlein:verification-before-completion** - Verify fix worked before claiming success
 
 ## Real-World Impact
 

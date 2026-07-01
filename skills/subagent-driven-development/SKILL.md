@@ -2,6 +2,8 @@
 name: subagent-driven-development
 description: Use when executing implementation plans with independent tasks in the current session
 disable-model-invocation: true
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Subagent-Driven Development
@@ -76,7 +78,7 @@ digraph process {
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
-    "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "Use gherlein:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
@@ -95,7 +97,7 @@ digraph process {
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
+    "Dispatch final code reviewer subagent for entire implementation" -> "Use gherlein:finishing-a-development-branch";
 }
 ```
 
@@ -305,13 +307,13 @@ Report the same four statuses as in the subagent model — DONE, DONE_WITH_CONCE
 ## Integration
 
 **Required workflow skills:**
-- **superpowers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **superpowers:writing-plans** - Creates the plan this skill executes
-- **superpowers:requesting-code-review** - Code review template for reviewer subagents
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **gherlein:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **gherlein:writing-plans** - Creates the plan this skill executes
+- **gherlein:requesting-code-review** - Code review template for reviewer subagents
+- **gherlein:finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **superpowers:test-driven-development** - Subagents follow TDD for each task
+- **gherlein:test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **superpowers:executing-plans** - Use for parallel session instead of same-session execution
+- **gherlein:executing-plans** - Use for parallel session instead of same-session execution

@@ -1,11 +1,13 @@
 ---
 name: requesting-code-review
 description: "Verify work meets requirements before declaring done or merging. Triggers on: finished a feature, before merging, ready for review, double-check my work, did I meet the requirements, completing a major change."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Requesting Code Review
 
-Dispatch superpowers:code-reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+Dispatch a `general-purpose` subagent as a code reviewer to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
 
 **Core principle:** Review early, review often.
 
@@ -32,8 +34,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 **2. Run the review — two paths depending on harness capability:**
 
 **With subagents (Claude Code, Codex):**
-- Dispatch code-reviewer subagent using Task tool with `superpowers:code-reviewer` type
-- Fill template at `code-reviewer.md` — provide `{WHAT_WAS_IMPLEMENTED}`, `{PLAN_OR_REQUIREMENTS}`, `{BASE_SHA}`, `{HEAD_SHA}`, `{DESCRIPTION}`
+- Dispatch a `general-purpose` subagent using the Task tool, filling the template at `code-reviewer.md` — provide `{WHAT_WAS_IMPLEMENTED}`, `{PLAN_OR_REQUIREMENTS}`, `{BASE_SHA}`, `{HEAD_SHA}`, `{DESCRIPTION}`
 - Reviewer operates in fresh context, unbiased by your session history
 
 **Without subagents (Pi, single-session):**
@@ -58,7 +59,7 @@ You: Let me request code review before proceeding.
 BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
 HEAD_SHA=$(git rev-parse HEAD)
 
-[Dispatch superpowers:code-reviewer subagent]
+[Dispatch general-purpose subagent with code-reviewer.md template]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
   PLAN_OR_REQUIREMENTS: Task 2 from docs/superpowers/plans/deployment-plan.md
   BASE_SHA: a7981ec

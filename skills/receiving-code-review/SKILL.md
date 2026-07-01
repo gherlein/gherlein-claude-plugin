@@ -1,6 +1,8 @@
 ---
 name: receiving-code-review
 description: "Respond to code-review feedback with technical rigor, not performative agreement. Triggers on: I got review feedback, address review comments, the reviewer said, respond to PR comments, before implementing a suggested change, feedback seems wrong or unclear."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Code Review Reception

@@ -2,6 +2,8 @@
 name: writing-plans
 description: Use when you have a spec or requirements for a multi-step task, before touching code
 disable-model-invocation: true
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Writing Plans
@@ -50,7 +52,7 @@ This structure informs the task decomposition. Each task should produce self-con
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED: Use gherlein:subagent-driven-development (if subagents available) or gherlein:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -141,10 +143,10 @@ After saving the plan:
 **Execution path depends on harness capabilities:**
 
 **If harness has subagents (Claude Code, etc.):**
-- **REQUIRED:** Use superpowers:subagent-driven-development
+- **REQUIRED:** Use gherlein:subagent-driven-development
 - Do NOT offer a choice - subagent-driven is the standard approach
 - Fresh subagent per task + two-stage review
 
 **If harness does NOT have subagents:**
-- Execute plan in current session using superpowers:executing-plans
+- Execute plan in current session using gherlein:executing-plans
 - Batch execution with checkpoints for review

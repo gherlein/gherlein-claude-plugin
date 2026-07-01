@@ -1,6 +1,8 @@
 ---
 name: verification-before-completion
 description: "Require running verification commands and confirming output before any success claim. Triggers on: about to say done or fixed or passing or complete, before committing or opening a PR, claiming a feature works, declaring tests green; evidence before assertions."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Verification Before Completion

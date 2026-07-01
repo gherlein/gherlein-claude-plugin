@@ -1,4 +1,4 @@
-# gherlein/claude-skills
+# gherlein-claude-plugin
 
 Claude Code plugin providing engineering discipline skills for planning,
 code quality, Go, TypeScript, PostgreSQL, git workflow, and debugging.
@@ -12,7 +12,7 @@ explodes. (But do drop me a note if it helps — pay it forward.)
 
 ```
 /plugin marketplace add gherlein/claude-marketplace
-/plugin install gherlein@gherlein
+/plugin install gherlein@gherlein-marketplace
 /reload-plugins
 ```
 
@@ -100,26 +100,36 @@ Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 
 ```bash
 # 1. Add the skill to the plugin repo
-mkdir -p ~/claude-skills/skills/my-new-skill
-# write ~/claude-skills/skills/my-new-skill/SKILL.md
+mkdir -p skills/my-new-skill
+# write skills/my-new-skill/SKILL.md
 
 # 2. Bump the version in .claude-plugin/plugin.json
 
 # 3. Commit and push
-cd ~/claude-skills
 git add .
 git commit -m "add my-new-skill"
 git push
 
 # 4. Update the installed plugin
-/plugin marketplace update gherlein
+/plugin marketplace update gherlein-marketplace
 /reload-plugins
 ```
 
 ### Bootstrap a New Machine
 
 ```bash
-# After make stow (dotfiles):
-/plugin install gherlein@gherlein
+/plugin marketplace add gherlein/claude-marketplace
+/plugin install gherlein@gherlein-marketplace
 /reload-plugins
 ```
+
+## Credits
+
+Twelve skills in this plugin are derived from the **Superpowers** project by
+Jesse Vincent (https://github.com/obra/superpowers), used under the MIT License
+and Copyright (c) 2025 Jesse Vincent. A pristine upstream snapshot is vendored
+at `vendor/superpowers/` and pinned in `vendor/superpowers/PINNED_AT.txt`. See
+[`NOTICE.md`](NOTICE.md) for the full attribution and the list of derived skills.
+
+All other skills are original works Copyright (c) 2026 Greg Herlein. This project
+is MIT-licensed; see [`LICENSE`](LICENSE).

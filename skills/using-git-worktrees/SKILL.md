@@ -1,6 +1,8 @@
 ---
 name: using-git-worktrees
 description: "Create isolated git worktrees for feature work, with smart directory selection and safety checks. Triggers on: start a feature in isolation, work without disturbing the current tree, set up a worktree, parallel branches, before executing an implementation plan."
+source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
+license: MIT
 ---
 
 # Using Git Worktrees
