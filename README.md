@@ -95,7 +95,6 @@ Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 
 | Skill | Purpose |
 |-------|---------|
-| `gherlein:codebase-memory` | Structural code queries and architecture |
 | `gherlein:learn` | Document tricky solutions for future reference |
 | `gherlein:onboard` | Unfamiliar or new codebase onboarding |
 | `gherlein:refine` | Iterative improvement of algorithms |
