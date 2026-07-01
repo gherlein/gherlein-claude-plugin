@@ -20,6 +20,12 @@ explodes. (But do drop me a note if it helps — pay it forward.)
 
 Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 
+Most skills **auto-trigger** when your request matches their subject (e.g. asking
+to review code invokes `code-review`). Some are **manual-only**
+(`disable-model-invocation: true`) — heavier workflows you run deliberately by
+name, such as `plan`, `orchestrate`, `build-autonomous`, `brainstorming`, and the
+plan-execution skills. Invoke any skill explicitly with `/gherlein:<name>`.
+
 ### Skill Framework
 
 | Skill | Purpose |
@@ -100,23 +106,33 @@ Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 | `gherlein:refine` | Iterative improvement of algorithms |
 | `gherlein:reverse-engineer` | Understand an existing system's architecture |
 
-## Development
+## For Maintainers
 
-### Adding a New Skill
+These steps are for publishing updates to the plugin, not for installing it.
+
+### Adding a New Skill / Cutting a Release
+
+The `gherlein-marketplace` catalog pins the plugin to an exact tag and commit, so
+changes are invisible to installers until you tag a release **and** update the
+marketplace listing.
 
 ```bash
-# 1. Add the skill to the plugin repo
-mkdir -p skills/my-new-skill
-# write skills/my-new-skill/SKILL.md
+# 1. Add or edit the skill
+mkdir -p skills/my-new-skill        # write skills/my-new-skill/SKILL.md
 
-# 2. Bump the version in .claude-plugin/plugin.json
+# 2. Bump the version in .claude-plugin/plugin.json and add a CHANGELOG.md entry
 
-# 3. Commit and push
+# 3. Commit, tag, and push (this repo)
 git add .
 git commit -m "add my-new-skill"
-git push
+git tag vX.Y.Z
+git push && git push --tags
 
-# 4. Update the installed plugin
+# 4. Point the marketplace at the new release (gherlein/claude-marketplace repo)
+#    Update .claude-plugin/marketplace.json -> source.ref = "vX.Y.Z" and
+#    source.commit = <new commit SHA>, then commit and push that repo.
+
+# 5. Update an installed copy
 /plugin marketplace update gherlein-marketplace
 /reload-plugins
 ```
