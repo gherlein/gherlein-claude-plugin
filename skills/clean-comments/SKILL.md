@@ -1,6 +1,6 @@
 ---
 name: clean-comments
-description: "Remove obvious, redundant, or process-narrating comments from code, per the CLAUDE.md comment rules. Triggers on: clean up comments, remove redundant or obvious comments, strip WHAT-comments, delete commented-out code, comment cleanup before commit."
+description: "Remove obvious, redundant, or process-narrating comments from code, following standard WHY-not-WHAT comment conventions. Triggers on: clean up comments, remove redundant or obvious comments, strip WHAT-comments, delete commented-out code, comment cleanup before commit."
 ---
 
 # Clean Comments
