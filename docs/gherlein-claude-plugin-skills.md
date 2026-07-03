@@ -1,13 +1,13 @@
 # gherlein-claude-plugin — Skills Summary
 
-**Plugin:** `gherlein` (v1.1.2) — Greg Herlein
+**Plugin:** `gherlein` (v1.2.0) — Greg Herlein
 **Description:** Engineering discipline skills: planning, code quality, Go, TypeScript, PostgreSQL, git workflow, debugging.
 **Repo:** https://github.com/gherlein/gherlein-claude-plugin (MIT)
 **Invocation:** Skills are namespaced under `gherlein:` — e.g. `/gherlein:code-review`.
 
 Skills marked **[manual]** have `disable-model-invocation: true` — they run only when explicitly invoked, not auto-triggered by the model. Skills marked **[superpowers]** are vendored from `obra/superpowers` (MIT). All others auto-trigger on the keywords listed.
 
-Total: **40 skills**.
+Total: **41 skills**.
 
 ---
 
@@ -61,6 +61,7 @@ Total: **40 skills**.
 |-------|----------------|---------|
 | `test-driven-development` | [superpowers] implement feature / fix bug | Test-first: write a failing test before implementation. |
 | `test-as-guardrails` | writing tests, meaningful tests | Three-context testing workflow preventing spec gaming; edge-case categories for Go, web, embedded, distributed. |
+| `api-canary` | find all exposed APIs, external/canary tests, API drift | Discover every externally exposed endpoint, then generate a standalone black-box canary framework that probes the live service from outside the deployment boundary. |
 | `edge-case-discovery` | what edge cases am I missing | Two-step systematic discovery of missing edge cases; checklists for Go, web, RP2040, K8s. |
 | `systematic-debugging` | [superpowers] any bug / test failure / broken | Disciplined debugging: reproduce and find root cause before proposing a fix. |
 | `evidence-based-debugging` | debug this / why failing / root cause | Closed-loop debugging with 5-Whys RCA and domain tools for Go, web, embedded, K8s. |

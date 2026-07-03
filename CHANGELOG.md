@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.2.0
+
+- Add the `api-canary` skill: discover every externally exposed API endpoint
+  (HTTP/REST, gRPC, GraphQL, WebSocket) from contracts or route registrations,
+  then generate a standalone black-box canary test framework that probes the
+  live service from outside the deployment boundary — additive to in-repo tests,
+  with smoke/contract/auth/negative/latency tiers, a continuous synthetic-monitor
+  runtime, and endpoint drift detection. Plugin now ships 41 skills.
+- `build-autonomous`: wire `test-as-guardrails` explicitly into the flow —
+  mandatory for test planning (Phase 3) and implementation (Phase 5), with the
+  three-context anti-gaming workflow, the edge-case matrix, and a sub-30s smoke
+  suite run at each phase gate.
+- `build-autonomous`: wire `api-canary` into the flow for projects that expose a
+  network API — plan the canary in Phase 3, generate the module alongside code in
+  Phase 5, and run its smoke/contract tiers plus a drift check in the Phase 6
+  integration gate.
+- Docs: add the `api-canary` row and correct the skills-summary count to 41.
+
 ## v1.1.2
 
 - Remove the `codebase-memory` skill and its `codebase-memory-mcp` dependency.

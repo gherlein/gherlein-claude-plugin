@@ -49,10 +49,14 @@ Create specialized sub-agents for parallel work:
 - Update `PROJECT.md` if it exists with project-specific details
 
 **Test Planning Agent Tasks (or: test planning pass in current session):**
+- **Invoke the `test-as-guardrails` skill** to structure the plan — use its edge-case categories (boundary, nil/empty, error propagation, concurrency, network, resource) and its language-specific testing patterns (Go, web, embedded, distributed) as the template
 - Design test strategy (unit, integration, e2e)
 - Define test phases aligned with implementation phases
 - Specify test coverage targets
-- Document edge cases and failure scenarios
+- Document edge cases and failure scenarios (enumerate per the `test-as-guardrails` edge-case matrix)
+- Define the sub-30-second smoke suite to run after every phase
+- Record the mocking policy (mocking as a last resort; prefer in-memory fakes; never mock your own code)
+- **If the project exposes any network API** (HTTP/REST, gRPC, GraphQL, WebSocket): **invoke the `api-canary` skill** to plan the external black-box canary — the exposed-endpoint inventory and the smoke/contract/auth/negative/latency tiers become part of the test strategy
 - Write to `docs/TEST-PLAN.md`
 
 **Update Configuration:**
@@ -87,7 +91,13 @@ Before implementation begins, ensure proper version control and file management:
 
 ### Phase 5: Phased Implementation
 
-Each Implementation Agent **must invoke the `test-driven-development` skill** at the start of its work. Tests are written before implementation code — no exceptions.
+Each Implementation Agent **must invoke two skills** at the start of its work:
+- **`test-driven-development`** — governs the order: a failing test before any production code, no exceptions (Red-Green-Refactor with a verified red).
+- **`test-as-guardrails`** — governs the quality of those tests: strict assertions, the mocking-as-last-resort policy, the edge-case matrix from `docs/TEST-PLAN.md`, and the language-specific patterns for the project's stack.
+
+Where sub-agents are available, apply the `test-as-guardrails` three-context workflow to defeat specification gaming: write implementation and tests in separate fresh contexts, and triage any failure in a third fresh context (bug in code, or wrong test?).
+
+For projects that expose a network API, once the API surface for a phase is implemented, **invoke the `api-canary` skill** to generate/extend the standalone black-box canary module (`canary/`, no imports of the service). The canary is a deliverable built alongside the code, not after it.
 
 Follow the Autonomous Implementation Protocol from CLAUDE.md:
 
@@ -95,7 +105,8 @@ Follow the Autonomous Implementation Protocol from CLAUDE.md:
 2. Implement ONE phase at a time
 3. After each phase:
    - Run ALL tests for that phase (`make test` or equivalent)
-   - If any test fails: **invoke `systematic-debugging`** to diagnose the root cause before attempting a fix — never guess or retry blindly
+   - Run the sub-30-second smoke suite defined in `docs/TEST-PLAN.md` (e.g. `go test ./... -short`) and the concurrency checks under the race detector where the stack supports it (e.g. `-race`)
+   - If any test fails: **invoke `systematic-debugging`** to diagnose the root cause before attempting a fix — never guess or retry blindly; triage per the `test-as-guardrails` third-context rule
    - After fixing, re-run tests; repeat until ALL pass
    - Do NOT proceed to next phase with failing tests
 4. Repeat until all phases complete
@@ -105,9 +116,11 @@ Follow the Autonomous Implementation Protocol from CLAUDE.md:
 After all phases implemented:
 
 1. Run entire test suite end-to-end
-2. Run build (`make build`)
-3. Run linters if configured
-4. If anything fails: **invoke `systematic-debugging`** to diagnose before fixing, then iterate until everything passes
+2. Run the full smoke suite and, where supported, the concurrency checks under the race detector (per `test-as-guardrails`)
+3. For API projects: start the service and run the `api-canary` smoke + contract tiers against the running instance from outside the process; run `make drift` to confirm no exposed endpoint is undocumented or missing
+4. Run build (`make build`)
+5. Run linters if configured
+6. If anything fails: **invoke `systematic-debugging`** to diagnose before fixing, then iterate until everything passes
 
 ### Phase 7: Review Gate
 
@@ -170,6 +183,8 @@ Write `README.md` with:
 - **Never skip reviews** - all three reviews must complete before declaring done
 - **Never leave failing tests** - use `systematic-debugging` to diagnose, then iterate until all tests pass
 - **Test-first always** - `test-driven-development` is mandatory for every Implementation Agent
+- **Tests must be meaningful** - `test-as-guardrails` is mandatory for test planning (Phase 3) and implementation (Phase 5); strict assertions, edge-case matrix, mocking as a last resort
+- **External API validation** - for projects exposing a network API, `api-canary` is mandatory: a standalone black-box canary (no service imports) is a deliverable, and its smoke/contract tiers plus drift check run in the Phase 6 integration gate
 - **Minimal user interaction** - autonomous execution throughout
 - **Document as you go** - design docs, test plans, and README are deliverables, not afterthoughts
 
@@ -191,6 +206,7 @@ Then follow all phases sequentially with no human interaction after Phase 0 appr
 - All design documents written and committed
 - All test plans documented
 - All code implemented with tests written first
+- For API projects: external `api-canary` module built (black-box) and its smoke/contract/drift checks passing against a running instance
 - All builds successful
 - All three reviews completed
 - All critical/high findings remediated
