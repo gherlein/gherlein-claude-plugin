@@ -1,6 +1,6 @@
 ---
 name: build-autonomous
-description: Complete autonomous design-build-test cycle from requirements through final documentation
+description: "Complete design-build-test cycle that opens with two interactive, user-gated phases -- vision brainstorming into VISION.md, then requirements analysis into REQUIREMENTS.md -- and then runs autonomously through design, implementation, testing, review, and documentation. Triggers on: build this autonomously, build-autonomous, design and build this hands-off, full design-plan-implement-test-document cycle."
 disable-model-invocation: true
 ---
 
@@ -17,12 +17,35 @@ Use when the user wants a complete hands-off implementation from design through 
 
 ## Complete Workflow
 
+This skill is a loop. It opens with two **interactive, human-gated** phases (Phase 0.1 and 0.2). Everything from Phase 1 onward runs **autonomously** -- break for the user only when a downstream skill explicitly requires input (e.g. `systematic-debugging` surfacing a decision, a review gate needing a judgment call).
+
+### Phase 0: Vision and Requirements (INTERACTIVE -- the only human-gated phases)
+
+Do NOT enter Phase 1 until the Phase 0.2 requirements gate is cleared by the user.
+
+#### Phase 0.1: Vision (Brainstorming)
+
+1. Look for `VISION.md` in the repo root:
+   - **If it exists:** read it and treat it as the starting point -- confirm and expand it with the user rather than starting over.
+   - **If it does not exist:** create it and grow it as the conversation progresses.
+2. **Invoke the `brainstorming` skill for its dialogue technique:** explore project context, then ask clarifying questions ONE AT A TIME (purpose, users, constraints, success criteria, non-goals), and propose 2-3 approaches with a recommendation wherever a direction is unclear.
+   - **Redirect brainstorming's output to `VISION.md`.** Do not use its default dated spec path and do NOT follow its terminal `writing-plans` handoff here -- in this workflow the vision flows into Phase 0.2 (requirements), not into a plan.
+3. Keep `VISION.md` updated as answers accumulate: purpose, goals, non-goals, primary users, key constraints, success criteria, and open questions.
+4. **GATE -- user signals done brainstorming.** Continue the dialogue until the user explicitly indicates the vision is complete (e.g. "done brainstorming", "vision looks good", "move on to requirements"). Do NOT advance on your own judgment. When they signal done, finalize `VISION.md` and proceed to Phase 0.2.
+
+#### Phase 0.2: Requirements Analysis
+
+1. **Invoke the `spec-driven` skill** for structure and authority rules. Using everything learned in Phase 0.1 plus the contents of `VISION.md`, write or edit `REQUIREMENTS.md` at the repo root. `REQUIREMENTS.md` is the authoritative, detailed requirements you will build from.
+2. Derive concrete, testable requirements from the vision: functional requirements, numbered constraints (e.g. `C-001`), invariants, non-functional requirements (performance, security, deployment targets), and explicit out-of-scope items.
+3. Ask targeted clarifying questions -- one at a time -- wherever the vision is ambiguous or incomplete.
+4. **GATE -- user signals done with requirements analysis.** Continue editing until the user explicitly indicates requirements are complete (e.g. "requirements are done", "requirements look good", "start building"). Do NOT advance on your own judgment. When they signal done, commit `VISION.md` and `REQUIREMENTS.md`, then proceed autonomously from Phase 1 onward.
+
 ### Phase 1: Context Loading
 
 Load the full execution context:
 
 1. Read `~/.claude/INDEX.md`
-2. Identify the project's languages, frameworks, and domains from the approved spec and any existing code
+2. Identify the project's languages, frameworks, and domains from the Phase 0 artifacts (`VISION.md` and `REQUIREMENTS.md`) and any existing code
 3. Read every relevant security rule file listed in INDEX.md for those languages and domains -- at minimum always read `~/.claude/security-rules/_core/owasp-2025.md`
 4. Note which skills from INDEX.md apply to this project (e.g., `postgresql`, `rest-api-design`, `web-frontend`) -- invoke them as needed during design and implementation phases
 
@@ -41,7 +64,7 @@ Create specialized sub-agents for parallel work:
 **Without subagents:** run design first, then test planning, in the same session.
 
 **Design Agent Tasks (or: design pass in current session):**
-- Analyze the approved spec from Phase 0 and all constraints
+- Analyze `REQUIREMENTS.md` (authoritative) and `VISION.md` from Phase 0 and all constraints
 - Create architecture (modules, boundaries, contracts, state model)
 - Define interfaces (APIs, protocols, schemas)
 - Document constraints and invariants
@@ -185,7 +208,8 @@ Write `README.md` with:
 - **Test-first always** - `test-driven-development` is mandatory for every Implementation Agent
 - **Tests must be meaningful** - `test-as-guardrails` is mandatory for test planning (Phase 3) and implementation (Phase 5); strict assertions, edge-case matrix, mocking as a last resort
 - **External API validation** - for projects exposing a network API, `api-canary` is mandatory: a standalone black-box canary (no service imports) is a deliverable, and its smoke/contract tiers plus drift check run in the Phase 6 integration gate
-- **Minimal user interaction** - autonomous execution throughout
+- **Interactive only in Phase 0** - vision brainstorming and requirements analysis are human-gated; the user must explicitly signal "done" at each gate before the workflow advances
+- **Minimal user interaction after Phase 0** - autonomous execution from Phase 1 onward, breaking only when a downstream skill explicitly requires input
 - **Document as you go** - design docs, test plans, and README are deliverables, not afterthoughts
 
 ## Invocation Pattern
@@ -199,10 +223,12 @@ Or:
 Or:
 > "/build-autonomous [requirements]"
 
-Then follow all phases sequentially with no human interaction after Phase 0 approval.
+Regardless of how much detail the user provides up front, the workflow still opens with the interactive Phase 0: brainstorm the vision into `VISION.md` (gated), then analyze requirements into `REQUIREMENTS.md` (gated). After the user clears the requirements gate, follow all remaining phases sequentially with no human interaction unless a downstream skill requires it.
 
 ## Success Criteria
 
+- `VISION.md` brainstormed and committed; user cleared the vision gate
+- `REQUIREMENTS.md` written from the vision and committed; user cleared the requirements gate
 - All design documents written and committed
 - All test plans documented
 - All code implemented with tests written first

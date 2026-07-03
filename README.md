@@ -38,7 +38,7 @@ plan-execution skills. Invoke any skill explicitly with `/gherlein:<name>`.
 | Skill | Purpose |
 |-------|---------|
 | `gherlein:brainstorming` | Structured brainstorming before implementation |
-| `gherlein:build-autonomous` | Full autonomous design-build-test-review cycle |
+| `gherlein:build-autonomous` | Interactive vision + requirements, then autonomous design-build-test-review cycle |
 | `gherlein:dispatching-parallel-agents` | Run independent tasks concurrently |
 | `gherlein:executing-plans` | Execute a pre-written plan in a fresh session |
 | `gherlein:finishing-a-development-branch` | Branch cleanup and merge prep |
@@ -48,6 +48,33 @@ plan-execution skills. Invoke any skill explicitly with `/gherlein:<name>`.
 | `gherlein:subagent-driven-development` | Rigorous two-stage review protocol |
 | `gherlein:three-experts` | Multiple perspectives on complex architecture |
 | `gherlein:writing-plans` | Rigorous plans with subagent review |
+
+#### The `build-autonomous` loop
+
+`build-autonomous` is the flagship end-to-end workflow. It always opens with two
+**interactive, human-gated** phases and then runs the rest **autonomously** — it
+does not start building until you have signed off on what to build.
+
+1. **Vision (brainstorming)** — looks for `VISION.md` in the repo root. If it
+   exists, that's the starting point; if not, it's created. Using the
+   `brainstorming` dialogue (one question at a time, proposed approaches with a
+   recommendation), the vision — purpose, users, goals, non-goals, constraints,
+   success criteria — is captured in `VISION.md`. This phase loops until **you
+   explicitly say you're done brainstorming**; it never advances on its own.
+2. **Requirements analysis** — using the vision and `VISION.md`, it writes or
+   edits `REQUIREMENTS.md` (root, authoritative) via `spec-driven`: functional
+   requirements, numbered constraints, invariants, non-functional requirements,
+   and explicit out-of-scope items. This phase loops until **you explicitly say
+   requirements are done**, then commits `VISION.md` and `REQUIREMENTS.md`.
+3. **Autonomous build** — from here it proceeds without prompting you: design
+   (`docs/DESIGN.md`) → test plan → project/git setup → phased, test-first
+   implementation → full integration validation → the three-way review gate
+   (spec, design, security) → remediation → the verification gate →
+   `README.md` → finishing the development branch. It breaks for you only when a
+   downstream skill genuinely needs a decision (e.g. a debugging or review call).
+
+The two gates are the contract: you own the vision and the requirements; the
+plugin owns everything downstream of them.
 
 ### Code Quality
 

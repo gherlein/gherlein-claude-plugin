@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.3.0
+
+- `build-autonomous`: define the previously-referenced-but-missing Phase 0 as two
+  interactive, human-gated steps that open the loop. Phase 0.1 (Vision) reads or
+  creates `VISION.md` and uses the `brainstorming` dialogue to flesh it out,
+  looping until the user signals done brainstorming. Phase 0.2 (Requirements)
+  invokes `spec-driven` to write or edit `REQUIREMENTS.md` from the vision,
+  looping until the user signals requirements are done. Everything from Phase 1
+  onward stays autonomous, breaking only when a downstream skill needs input.
+- `build-autonomous`: fix the dangling "approved spec from Phase 0" references to
+  point at `VISION.md`/`REQUIREMENTS.md`; update the description, Key Constraints,
+  Invocation Pattern, and Success Criteria to reflect the two gates.
+- Docs: add a "The `build-autonomous` loop" section to the README explaining the
+  two interactive gates and the autonomous handoff.
+
 ## v1.2.0
 
 - Add the `api-canary` skill: discover every externally exposed API endpoint
