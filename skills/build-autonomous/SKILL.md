@@ -19,19 +19,56 @@ Use when the user wants a complete hands-off implementation from design through 
 
 This skill is a loop. It opens with two **interactive, human-gated** phases (Phase 0.1 and 0.2). Everything from Phase 1 onward runs **autonomously** -- break for the user only when a downstream skill explicitly requires input (e.g. `systematic-debugging` surfacing a decision, a review gate needing a judgment call).
 
+**Version-control rhythm:** all work happens on a dedicated branch created in Phase 0.1, never directly on `main`. When the project is under git, treat each phase as an atomic unit of work -- at the **end of every phase, before advancing to the next, commit all changes** with a message naming the phase (e.g. `phase 4: design`, `phase 5: implement <module>`). These per-phase commits are deliberate rollback points: if a later phase goes wrong, you can reset to the last good phase. Phase 0 already commits `VISION.md`/`REQUIREMENTS.md` at its gates; every phase from 1 onward follows the same commit-before-advancing rule.
+
 ### Phase 0: Vision and Requirements (INTERACTIVE -- the only human-gated phases)
 
 Do NOT enter Phase 1 until the Phase 0.2 requirements gate is cleared by the user.
 
 #### Phase 0.1: Vision (Brainstorming)
 
-1. Look for `VISION.md` in the repo root:
+1. **Confirm version control first.** Check whether the working folder is a git
+   repo (`git rev-parse --git-dir`). If it is **not**, ask the user whether they
+   want one created before continuing:
+   - **If yes:** run `git init` now, so `VISION.md` (and later artifacts) can be
+     committed as they are written. (`.gitignore` setup still happens in Phase 4.)
+   - **If no:** note that later commit, tag, and release steps will not be
+     possible, and proceed without version control.
+   Ask this once, up front, before the brainstorming dialogue begins.
+   Once version control is in place, **create and switch to a working branch**
+   named for the project -- a short kebab-case slug derived from the topic, e.g.
+   `build/<topic>`. All Phase 0 and later commits land on this branch; it is the
+   unit of work that gets merged or turned into a PR at the end (Phase 11). Skip
+   branch creation only if the user declined version control.
+2. Look for `VISION.md` in the repo root:
    - **If it exists:** read it and treat it as the starting point -- confirm and expand it with the user rather than starting over.
    - **If it does not exist:** create it and grow it as the conversation progresses.
-2. **Invoke the `brainstorming` skill for its dialogue technique:** explore project context, then ask clarifying questions ONE AT A TIME (purpose, users, constraints, success criteria, non-goals), and propose 2-3 approaches with a recommendation wherever a direction is unclear.
+3. **Invoke the `brainstorming` skill for its dialogue technique:** explore project context, then ask clarifying questions ONE AT A TIME (purpose, users, constraints, success criteria, non-goals), and propose 2-3 approaches with a recommendation wherever a direction is unclear.
    - **Redirect brainstorming's output to `VISION.md`.** Do not use its default dated spec path and do NOT follow its terminal `writing-plans` handoff here -- in this workflow the vision flows into Phase 0.2 (requirements), not into a plan.
-3. Keep `VISION.md` updated as answers accumulate: purpose, goals, non-goals, primary users, key constraints, success criteria, and open questions.
-4. **GATE -- user signals done brainstorming.** Continue the dialogue until the user explicitly indicates the vision is complete (e.g. "done brainstorming", "vision looks good", "move on to requirements"). Do NOT advance on your own judgment. When they signal done, finalize `VISION.md` and proceed to Phase 0.2.
+4. **Document each answer into `VISION.md` as the dialogue proceeds -- do not leave
+   the reasoning only in the chat.** After each meaningful exchange, fold the
+   user's answer (and the rationale behind it) into the relevant section so the
+   file steadily becomes a complete, self-contained, readable narrative of what is
+   being built and why. `VISION.md` must stand on its own: someone who reads only
+   the file -- without the conversation -- should understand the project. Use
+   these sections, scaled to the project:
+   - **Purpose** -- what this is, in a sentence or two
+   - **Problem / motivation** -- why it is worth building; what pain it removes
+   - **Primary users** -- who uses it and in what context
+   - **Goals** -- what success looks like, concretely
+   - **Non-goals** -- what is explicitly out of scope
+   - **Key constraints** -- platform, performance, security, deployment, timeline
+   - **Chosen approach** -- the direction settled on, with a brief note on the
+     alternatives considered and why this one won
+   - **Success criteria** -- how we will know it works
+   - **Open questions** -- anything still unresolved (these seed Phase 0.2)
+   Write in prose the user can actually read, not terse fragments or bare headings.
+5. **GATE -- user signals done brainstorming.** When you believe the vision is
+   complete, tell the user `VISION.md` is ready and ask them to read it. Continue
+   the dialogue and keep updating the file until the user explicitly indicates the
+   vision is complete (e.g. "done brainstorming", "vision looks good", "move on to
+   requirements"). Do NOT advance on your own judgment. When they signal done,
+   finalize `VISION.md` and proceed to Phase 0.2.
 
 #### Phase 0.2: Requirements Analysis
 
@@ -198,7 +235,14 @@ Write `README.md` with:
 
 ### Phase 11: Finishing the Development Branch
 
-**Invoke `finishing-a-development-branch`** as the terminal step. This skill handles final branch cleanup, commit hygiene, and any remaining integration steps before the work is considered delivered.
+The work now lives on the branch created in Phase 0.1. As the terminal step:
+
+1. **Remind the user which branch they are on** (`git branch --show-current`) and confirm every phase commit is in.
+2. **Ask how to integrate**, offering two choices:
+   - **Open a PR to `main`** -- push the branch and create the pull request (`gh pr create`).
+   - **Merge the branch into `main`.**
+3. **If they choose merge, then ask whether to delete the branch** afterward. Honor the answer: delete it only if they say yes (`git branch -d <branch>`, plus `git push origin --delete <branch>` if it was pushed); otherwise leave it in place.
+4. **Invoke `finishing-a-development-branch`** to carry out the chosen path rigorously -- it verifies tests, determines the base branch, executes the merge or PR, and handles branch removal. Execute the user's choices with real `git`/`gh` actions; do not merely describe them.
 
 ## Key Constraints
 
@@ -208,6 +252,7 @@ Write `README.md` with:
 - **Test-first always** - `test-driven-development` is mandatory for every Implementation Agent
 - **Tests must be meaningful** - `test-as-guardrails` is mandatory for test planning (Phase 3) and implementation (Phase 5); strict assertions, edge-case matrix, mocking as a last resort
 - **External API validation** - for projects exposing a network API, `api-canary` is mandatory: a standalone black-box canary (no service imports) is a deliverable, and its smoke/contract tiers plus drift check run in the Phase 6 integration gate
+- **Branch + commit per phase** - all work happens on a dedicated branch created in Phase 0.1; every phase ends with a commit as a rollback point before the next begins; integration (merge or PR) is chosen by the user in Phase 11
 - **Interactive only in Phase 0** - vision brainstorming and requirements analysis are human-gated; the user must explicitly signal "done" at each gate before the workflow advances
 - **Minimal user interaction after Phase 0** - autonomous execution from Phase 1 onward, breaking only when a downstream skill explicitly requires input
 - **Document as you go** - design docs, test plans, and README are deliverables, not afterthoughts

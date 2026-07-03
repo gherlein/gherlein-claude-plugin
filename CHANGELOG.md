@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.3.1
+
+- `build-autonomous` Phase 0.1: check whether the working folder is a git repo
+  and, if not, ask the user whether to create one (`git init`) before starting;
+  proceed without version control if declined.
+- `build-autonomous` Phase 0.1: require `VISION.md` to be fleshed out as the
+  dialogue proceeds -- each answer and its rationale folded into structured,
+  readable sections (purpose, motivation, users, goals, non-goals, constraints,
+  chosen approach, success criteria, open questions) so it stands on its own, and
+  ask the user to read it before the requirements gate.
+- `build-autonomous`: create a dedicated working branch (`build/<topic>`) in
+  Phase 0.1 and commit at the end of every phase as rollback points, never
+  working directly on `main`.
+- `build-autonomous` Phase 11: remind the user which branch they are on and ask
+  whether to open a PR to `main` or merge; on merge, ask whether to delete the
+  branch, then execute the choices with real `git`/`gh` actions via
+  `finishing-a-development-branch`.
+
 ## v1.3.0
 
 - `build-autonomous`: define the previously-referenced-but-missing Phase 0 as two
