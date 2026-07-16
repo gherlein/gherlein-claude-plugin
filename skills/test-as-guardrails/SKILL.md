@@ -64,14 +64,10 @@ Run after every task: `go test ./... -short`
 
 ## Edge Case Categories
 
-| Category | Check |
-|----------|-------|
-| Boundary | min, max, min-1, max+1 for numeric inputs |
-| Nil/empty | nil pointers, empty strings, empty slices |
-| Error propagation | When dependency fails, what does caller see? |
-| Concurrency | Race conditions under `-race` flag |
-| Network | Timeout, DNS failure, connection refused, partial response |
-| Resource | Memory pressure, disk full, connection pool exhaustion |
+To enumerate the cases your tests must cover, use the `edge-case-discovery`
+skill -- it is the canonical source for edge-case categories (universal plus
+per-domain checklists for Go, web, embedded RP2040, and distributed/K8s). Feed
+its output into the tests written in Context B above.
 
 ## Testing Discipline
 

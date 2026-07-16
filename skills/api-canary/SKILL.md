@@ -167,7 +167,7 @@ the documented one — something in-repo tests structurally cannot see.
   outside instead of `-short`.
 - Apply `gherlein:gitignore-policy` and `gherlein:makefile-builds` to the generated module.
 - Before claiming the canary works, run it against a live target and read the output per
-  `gherlein:verification-before-completion` — a canary asserted-but-never-run is not evidence.
+  `verification-before-completion` — a canary asserted-but-never-run is not evidence.
 - In a `gherlein:build-autonomous` cycle, generate the canary in Phase 5 alongside in-repo
   tests and run its smoke tier in the Phase 6 integration gate.
 

@@ -8,6 +8,10 @@ disable-model-invocation: true
 
 Use for non-trivial features requiring multiple packages, services, or tiers.
 
+**Proportionality check first.** If the task can be done in one step, just do it
+-- do not create a 10-step plan for a simple change. Reserve the full four-phase
+approach below for work that genuinely spans multiple packages, services, or tiers.
+
 ## Four-Phase Approach
 
 ### Phase 1: Requirement Clarification
@@ -21,17 +25,20 @@ Ask targeted questions covering:
 - Security considerations
 
 ### Phase 2: Specification
-Create a specification as a persistent, authoritative document (specs outlive any given implementation):
+Write the specification to `REQUIREMENTS.md` at the repo root (the authoritative
+spec file per the project-document convention; specs outlive any given
+implementation):
 1. **Summary**: Purpose and goals (1 paragraph)
 2. **Functional Requirements**: Features, workflows, constraints
 3. **Technical Specifications**: Architecture, data models, APIs, protocols
 4. **Implementation Considerations**: Error handling, edge cases, security
 5. **Testing Strategy**: Unit, integration, e2e, contract tests
 
-Commit the spec alongside the code. Update the spec when requirements change -- always update the spec before changing the code.
+Commit the spec alongside the code. Update `REQUIREMENTS.md` when requirements change -- always update the spec before changing the code.
 
 ### Phase 3: Task Decomposition
-Break specification into incremental tasks:
+Break the specification into incremental tasks, recorded in `PLAN.md` at the repo
+root (the detailed implementation plan per the project-document convention):
 - Each task: single responsibility, testable, builds on previous
 - Include test requirements per task
 - Note integration points between tasks and services

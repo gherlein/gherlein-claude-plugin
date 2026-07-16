@@ -1,6 +1,7 @@
 ---
 name: requesting-code-review
 description: "Verify work meets requirements before declaring done or merging. Triggers on: finished a feature, before merging, ready for review, double-check my work, did I meet the requirements, completing a major change."
+disable-model-invocation: true
 source: obra/superpowers@f268f7c953744036f0fa7e9d4b73535c04e57cb8
 license: MIT
 ---

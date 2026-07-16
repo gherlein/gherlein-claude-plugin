@@ -78,11 +78,14 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
-```typescript
-// In Claude Code / AI environment
-Task("Fix agent-tool-abort.test.ts failures")
-Task("Fix batch-completion-behavior.test.ts failures")
-Task("Fix tool-approval-race-conditions.test.ts failures")
+Dispatch one subagent per domain using your platform's subagent tool (the
+`Agent` tool in Claude Code; equivalents on Codex). Issue the calls in a single
+turn so they run concurrently:
+
+```
+Agent("Fix agent-tool-abort.test.ts failures")
+Agent("Fix batch-completion-behavior.test.ts failures")
+Agent("Fix tool-approval-race-conditions.test.ts failures")
 // All three run concurrently
 ```
 

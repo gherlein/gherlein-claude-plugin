@@ -78,7 +78,7 @@ digraph process {
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
-    "Use gherlein:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "Use finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
@@ -97,7 +97,7 @@ digraph process {
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use gherlein:finishing-a-development-branch";
+    "Dispatch final code reviewer subagent for entire implementation" -> "Use finishing-a-development-branch";
 }
 ```
 
@@ -304,16 +304,29 @@ After all tasks complete, perform a final holistic review using `requesting-code
 
 Report the same four statuses as in the subagent model — DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, BLOCKED — to yourself (in the task log or a `.llm/status.md` file) so the state is visible and recoverable if the session is interrupted.
 
+## Context Compression
+
+Same-session runs over many tasks bloat context. When the conversation gets long, compress before continuing by recording, in priority order:
+
+1. **Current Work** — detailed description of the active task
+2. **Pending Tasks** — all outstanding work
+3. **Key Technical Concepts** — technologies, conventions, decisions
+4. **Relevant Files** — every file path and function name examined or modified
+5. **Problem Solving** — problems solved and still open
+6. **Previous Conversation** — high-level flow
+
+Priority when space is tight: Current Work > Pending Tasks > Recent Problems > Earlier Context.
+
 ## Integration
 
 **Required workflow skills:**
-- **gherlein:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **gherlein:writing-plans** - Creates the plan this skill executes
+- **using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **writing-plans** - Creates the plan this skill executes
 - **gherlein:requesting-code-review** - Code review template for reviewer subagents
-- **gherlein:finishing-a-development-branch** - Complete development after all tasks
+- **finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **gherlein:test-driven-development** - Subagents follow TDD for each task
+- **test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
 - **gherlein:executing-plans** - Use for parallel session instead of same-session execution
