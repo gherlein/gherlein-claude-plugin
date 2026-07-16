@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.4.0
+
+- Remove 9 skills that duplicated the superpowers plugin: `using-superpowers`,
+  `verification-before-completion`, `using-git-worktrees`, `systematic-debugging`,
+  `test-driven-development`, `receiving-code-review`, `finishing-a-development-branch`,
+  `writing-plans`, and `writing-skills`. These were stale forks that double-fired
+  alongside their superpowers twins; the workflow now defers to superpowers for them.
+- Remove `orchestrate`; salvage its unique content into kept skills -- the
+  proportionality check into `plan`, the context-compression checklist into
+  `subagent-driven-development`.
+- `requesting-code-review`: set `disable-model-invocation` so it no longer
+  auto-fires alongside the superpowers version; it remains available by explicit
+  invocation and for the build-autonomous chain's no-subagent fallback.
+- `dispatching-parallel-agents`: replace the stale `Task()` example with the
+  `Agent` subagent tool, stated platform-neutrally.
+- `plan`: Phase 2 and Phase 3 now write `REQUIREMENTS.md` and `PLAN.md` at the
+  repo root, matching the project-document convention.
+- `test-as-guardrails`: replace the duplicated edge-case table with a pointer to
+  `edge-case-discovery` as the canonical source.
+- Repoint internal references to removed skills to bare names so they resolve to
+  the superpowers plugin.
+
 ## v1.3.1
 
 - `build-autonomous` Phase 0.1: check whether the working folder is a git repo
