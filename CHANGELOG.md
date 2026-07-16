@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.5.0
+
+- `build-autonomous`: reframe from a self-contained 11-phase engine into a
+  conductor over the superpowers pipeline. By default it runs superpowers natively
+  (`brainstorming` -> `writing-plans` -> `subagent-driven-development` /
+  `executing-plans` -> `finishing-a-development-branch`) at superpowers' native
+  paths and gates, and layers gherlein rigor on top: Phase A loads security-rules
+  and creates the working branch; Phase B injects the `test-as-guardrails` edge
+  matrix, `api-canary`, and `makefile-builds`/`gitignore-policy` into the plan;
+  Phase D adds a 3-way (spec/design/security) final review, API drift check, and
+  `verification-before-completion`. The legacy self-contained engine is preserved
+  as an override Appendix, used only when the user explicitly asks for it.
+
 ## v1.4.0
 
 - Remove 9 skills that duplicated the superpowers plugin: `using-superpowers`,
