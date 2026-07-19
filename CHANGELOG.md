@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.7.0
+
+- `unifi-fixed-hosts`: add the `gofinet` tool for network inspection -- list
+  networks with subnet, VLAN, DHCP dynamic-address pool, lease, gateway, and
+  DNS (text columns + JSON field schema). Wire it into the workflow as the
+  companion to `gofips`: check the dynamic pool first so fixed reservations are
+  chosen outside it. Verified against the installed binary's `--help` and live
+  `gofinet --json` output.
+
 ## v1.6.0
 
 - Add `unifi-fixed-hosts`: read, add, and delete fixed IP assignments (DHCP

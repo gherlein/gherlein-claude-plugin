@@ -84,7 +84,7 @@ Total: **41 skills**.
 | `web-frontend` | React component / TS / Tailwind / Playwright | React/TypeScript conventions, Tailwind/shadcn styling, frontend testing (testing-library, Playwright). |
 | `postgresql` | Postgres schema / index / slow query / migration | PostgreSQL best practices: data types, indexing, queries, migrations, ORM policy, monitoring, backups. |
 | `rest-api-design` | design REST API / add endpoint / status code | RESTful conventions: status codes, pagination, error format, auth, caching, versioning, OpenAPI. |
-| `unifi-fixed-hosts` | UniFi fixed IP / DHCP reservation / device MAC lookup | Read/add/delete fixed IP assignments on a UniFi/UDM controller and look up detected device MACs via the `gofips`/`gofimac` CLIs. |
+| `unifi-fixed-hosts` | UniFi fixed IP / DHCP reservation / device MAC / network info | Read/add/delete fixed IP assignments on a UniFi/UDM controller, look up detected device MACs, and inspect network subnets + DHCP pools via the `gofips`/`gofimac`/`gofinet` CLIs. |
 
 ## Build & Documentation
 

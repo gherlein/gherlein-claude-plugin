@@ -1,23 +1,24 @@
 ---
 name: unifi-fixed-hosts
-description: Use when the user wants to read, add, or delete fixed IP (DHCP reservation) assignments on a UniFi/UDM controller, look up detected device MAC addresses, or edit a fixed-hosts file. Covers the gofips and gofimac CLI tools from github.com/emergingrobotics/gofi.
+description: Use when the user wants to read, add, or delete fixed IP (DHCP reservation) assignments on a UniFi/UDM controller, look up detected device MAC addresses, inspect network/subnet/DHCP-pool info, or edit a fixed-hosts file. Covers the gofips, gofimac, and gofinet CLI tools from github.com/emergingrobotics/gofi.
 ---
 
-# Managing UniFi Fixed Hosts with gofips / gofimac
+# Managing UniFi Fixed Hosts with gofips / gofimac / gofinet
 
 ## Overview
 
-`gofips` and `gofimac` are CLI tools from [github.com/emergingrobotics/gofi](https://github.com/emergingrobotics/gofi) for managing fixed IP assignments (DHCP reservations) on a UniFi controller / UDM Pro.
+`gofips`, `gofimac`, and `gofinet` are CLI tools from [github.com/emergingrobotics/gofi](https://github.com/emergingrobotics/gofi) for managing fixed IP assignments (DHCP reservations) and inspecting networks on a UniFi controller / UDM Pro.
 
 - **`gofips`** — reads and writes fixed IP + hostname (+ DNS) reservations, using **ISC DHCP `host {}` declarations** as its file format.
 - **`gofimac`** — lists currently detected/connected clients with their MAC, IP, hostname, and manufacturer.
+- **`gofinet`** — lists networks with their subnet, VLAN, and DHCP dynamic-address pool. The companion to `gofips`: use it to learn the pool range so you pick static reservations **outside** it.
 - **`gofi`** — the underlying Go module (not a CLI); ignore unless writing Go code.
 
-Core workflow to change reservations safely: **`--get` to a file → edit the file → `--set --dry-run` to preview → user reviews the file and approves → `--set` to apply.**
+Core workflow to change reservations safely: **`gofinet` to see the safe (non-pool) address range → `--get` to a file → edit the file → `--set --dry-run` to preview → user reviews the file and approves → `--set` to apply.**
 
 ## Prerequisites
 
-Both tools authenticate via environment variables. Confirm these are set before running anything:
+All three tools authenticate via environment variables. Confirm these are set before running anything:
 
 ```bash
 export UNIFI_USERNAME=admin
@@ -29,7 +30,7 @@ The controller host can also be passed with `-H`. TLS is self-signed by default 
 
 If the env vars are not set, ask the user for the controller host and credentials — do not guess.
 
-## Common Flags (both tools)
+## Common Flags (all tools)
 
 | Flag | Short | Purpose |
 |------|-------|---------|
@@ -58,6 +59,52 @@ host printer {
 ```
 
 Each block: `host <name>` + `hardware ethernet <MAC>;` + `fixed-address <IP>;`. Entries are sorted by IP on export.
+
+## gofinet: Network / Subnet / DHCP Pool Info
+
+Before assigning a fixed IP, use `gofinet` to see each network's subnet and its **dynamic DHCP pool** — the range the controller hands out automatically. A static reservation should sit in the subnet but **outside** that pool to avoid collisions with dynamic leases.
+
+```bash
+gofinet -H 192.168.1.1        # all networks (text table)
+gofinet -H 192.168.1.1 --json # JSON (use for parsing)   (-j)
+```
+
+Text output columns:
+
+```
+NETWORK     VLAN  SUBNET           DHCP-POOL                        LEASE   GATEWAY  DNS
+Default     -     192.168.4.1/24   192.168.4.100 - 192.168.4.189    86400s  -        1.1.1.1,8.8.8.8
+cj-iot      2     192.168.10.1/24  192.168.10.100 - 192.168.10.200  86400s  -        -
+Internet 1  -     -                (disabled)                       -       -        -
+```
+
+| Column | Meaning |
+|--------|---------|
+| `NETWORK` | Network name |
+| `VLAN` | VLAN id (`-` if untagged) |
+| `SUBNET` | Subnet in CIDR (`-` for WAN / no L3) |
+| `DHCP-POOL` | Dynamic address range, or `(disabled)` when no DHCP server (WAN, VLAN-only) |
+| `LEASE` | DHCP lease time (e.g. `86400s`) |
+| `GATEWAY` | Gateway address (`-` if not reported) |
+| `DNS` | DNS servers, comma-separated (`-` if none set) |
+
+In the example above, `192.168.4.100–189` is dynamic, so safe fixed addresses on `Default` are e.g. `192.168.4.2–99` or `192.168.4.190–254` (avoiding `.1`, the gateway).
+
+### gofinet JSON Fields (`--json`)
+
+Array of network objects. Fields present depend on network type:
+
+**Always present:** `name`, `purpose` (`corporate`/`wan`/`guest`), `enabled` (bool), `dhcp_enabled` (bool).
+
+**When the network has L3 / DHCP:** `subnet` (CIDR), `dhcp_start`, `dhcp_stop`, `dhcp_lease` (seconds), and `vlan` (int, only if tagged). `dns` (array) appears only when DNS servers are configured.
+
+WAN / disabled networks carry only the always-present fields.
+
+```bash
+# safe-range inputs: subnet + dynamic pool bounds for every DHCP-enabled network
+gofinet -H 192.168.1.1 --json \
+  | jq -r '.[] | select(.dhcp_enabled) | "\(.name): subnet \(.subnet) pool \(.dhcp_start)-\(.dhcp_stop)"'
+```
 
 ## gofips: Reading Fixed Hosts
 
@@ -192,22 +239,27 @@ gofimac -H 192.168.1.1 --json | jq -r '.[] | select(.hostname=="garage-pi") | .m
 
 ## End-to-End: Give a Detected Device a Fixed IP
 
-1. Find the device's MAC:
+1. Check the network's dynamic pool so you pick a safe address:
+   ```bash
+   gofinet -H $UNIFI_CONTROLLER_IP
+   ```
+   Choose a `fixed-address` inside the subnet but **outside** the DHCP-POOL range (and not the gateway).
+2. Find the device's MAC:
    ```bash
    gofimac -H $UNIFI_CONTROLLER_IP --json
    ```
    Identify the target by hostname/manufacturer; note its MAC.
-2. Snapshot current reservations:
+4. Snapshot current reservations:
    ```bash
    gofips -H $UNIFI_CONTROLLER_IP --get > hosts.conf
    ```
-3. Add or edit the `host {}` block in `hosts.conf` with the MAC from step 1 and the desired `fixed-address`.
-4. Preview:
+5. Add or edit the `host {}` block in `hosts.conf` with the MAC from step 2 and the safe `fixed-address` from step 1.
+6. Preview:
    ```bash
    gofips -H $UNIFI_CONTROLLER_IP --set hosts.conf --dry-run
    ```
-5. **Show the user `hosts.conf` and the dry-run output, and wait for explicit approval** (see the review gate above).
-6. Apply only after approval:
+7. **Show the user `hosts.conf` and the dry-run output, and wait for explicit approval** (see the review gate above).
+8. Apply only after approval:
    ```bash
    gofips -H $UNIFI_CONTROLLER_IP --set hosts.conf
    ```
@@ -215,7 +267,8 @@ gofimac -H 192.168.1.1 --json | jq -r '.[] | select(.hostname=="garage-pi") | .m
 
 ## Common Mistakes
 
-- **Using `gofi` as a command** — `gofi` is a Go module, not a CLI. The tools are `gofips` and `gofimac`.
+- **Using `gofi` as a command** — `gofi` is a Go module, not a CLI. The tools are `gofips`, `gofimac`, and `gofinet`.
+- **Reserving inside the DHCP pool** — a `fixed-address` within the dynamic range can collide with a leased address. Run `gofinet` first and pick an IP outside the DHCP-POOL range (and not the gateway).
 - **Expecting `--set` to delete** — removing a block from the file does not delete the reservation; `--set` skips unchanged/absent entries. Use `--del`.
 - **Applying `--set` without user review** — these writes change live network config. Never run a mutating `--set` until you have shown the user the host file plus the `--dry-run` output and they have approved (see the review gate).
 - **Missing credentials** — with no `UNIFI_USERNAME`/`UNIFI_PASSWORD`, auth fails; ask the user rather than guessing.
