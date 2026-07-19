@@ -19,9 +19,14 @@ skills_dir="$repo_root/skills"
 # survivors.
 allow='gherlein|https?|ftp|ftps|git|ssh|file|mailto|data|tel'
 
+# MAC-address octets (e.g. `aa:bb:cc:dd:ee:ff`) tokenize into hex pairs like
+# `aa:bb` that match the namespace pattern. A namespace ref never has both sides
+# be two hex digits, so drop trailing two-hex:two-hex matches to avoid false
+# positives from example MAC addresses in skills.
 offenders="$(
   grep -rEno '\b[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]+' "$skills_dir" --include=SKILL.md \
     | grep -vE ":(${allow}):" \
+    | grep -vE ':[0-9a-fA-F]{2}:[0-9a-fA-F]{2}$' \
     || true
 )"
 

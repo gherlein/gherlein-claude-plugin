@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.8.0
+
+- Add a `make release` target that publishes the version in `plugin.json`: it
+  tags `vX.Y.Z`, pushes `main` + tag, rewrites the marketplace repo's
+  `marketplace.json` `ref`/`commit`, and pushes it -- then prints the
+  client-side `/plugin` steps make cannot run. Also adds
+  `build`/`test`/`run-tests`/`check`/`clean` targets; the default target prints
+  help.
+- Fix `scripts/check-self-contained.sh`: example MAC addresses (e.g.
+  `aa:bb:cc:dd:ee:ff`) tokenize into `aa:bb` pairs that the namespace scanner
+  wrongly flagged as foreign plugin references, failing validation since
+  `unifi-fixed-hosts` landed in v1.6.0. Two-hex:two-hex fragments are now
+  filtered out.
+
 ## v1.7.0
 
 - `unifi-fixed-hosts`: add the `gofinet` tool for network inspection -- list
