@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.6.0
+
+- Add `unifi-fixed-hosts`: read, add, and delete fixed IP assignments (DHCP
+  reservations) on a UniFi/UDM controller and look up detected device MAC
+  addresses, wrapping the `gofips` and `gofimac` CLIs from
+  github.com/emergingrobotics/gofi. Reference verified against the installed
+  binaries' `--help` and live `gofimac --json` output.
+
 ## v1.5.0
 
 - `build-autonomous`: reframe from a self-contained 11-phase engine into a
