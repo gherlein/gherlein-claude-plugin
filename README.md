@@ -12,30 +12,30 @@ explodes. (But do drop me a note if it helps — pay it forward.)
 
 ## Install
 
-The plugin is distributed through the `gherlein-marketplace` catalog. Add the
-marketplace once, then install:
+This repo is its own marketplace — the `gherlein-marketplace` catalog lives in
+`.claude-plugin/marketplace.json` right here. Add the repo as a marketplace
+once, then install:
 
 ```
-/plugin marketplace add gherlein/claude-marketplace
+/plugin marketplace add gherlein/gherlein-claude-plugin
 /plugin install gherlein@gherlein-marketplace
 /reload-plugins
 ```
 
 ## Updating
 
-The marketplace pins the plugin to an exact release, so a new version is not
-visible to you until you refresh the marketplace listing. To pull the latest
-release into an already-installed copy:
+The marketplace listing tracks this repo directly, so refreshing it pulls the
+latest published skills. To update an already-installed copy:
 
 ```
 /plugin marketplace update gherlein-marketplace
-/plugin install gherlein@gherlein-marketplace
+/plugin update gherlein@gherlein-marketplace
 /reload-plugins
 ```
 
-`marketplace update` refreshes the catalog metadata; `install` then re-resolves
-`gherlein` to the newly published release; `reload-plugins` reloads the skills
-into your current session without a restart.
+`marketplace update` re-fetches the catalog and skills; `plugin update`
+re-resolves `gherlein` to the refreshed content; `reload-plugins` reloads the
+skills into your current session without a restart.
 
 ## Using the skills
 
@@ -143,35 +143,53 @@ plugin owns everything downstream of them.
 
 These steps publish updates to the plugin; they are not needed to install it.
 
-The `gherlein-marketplace` catalog pins the plugin to an exact tag and commit, so
-changes are invisible to installers until you tag a release **and** update the
-marketplace listing.
+This repo is self-hosting: its `.claude-plugin/marketplace.json` lists the plugin
+with a local `"source": "./"`, so there is no separate marketplace repo to keep
+in sync. Tagging and pushing this repo **is** the release. The `make release`
+target automates it.
+
+### Releasing
+
+Authoring a release is two hand edits; publishing it is one command.
 
 ```bash
-# 1. Add or edit the skill
-mkdir -p skills/my-new-skill        # write skills/my-new-skill/SKILL.md
+# 1. Add or edit skills under skills/<name>/SKILL.md
 
-# 2. Bump the version in .claude-plugin/plugin.json and add a CHANGELOG.md entry
+# 2. Bump "version" in .claude-plugin/plugin.json and add a matching
+#    "## vX.Y.Z" entry to the top of CHANGELOG.md
 
-# 3. Commit, tag, and push (this repo)
-git add .
-git commit -m "add my-new-skill"
-git tag vX.Y.Z
-git push && git push --tags
+# 3. Commit on main (make release requires a clean working tree)
+make check                          # validate skills are self-contained
+git commit -am "Release vX.Y.Z: <summary>"
 
-# 4. Point the marketplace at the new release (gherlein/claude-marketplace repo):
-#    set source.ref = "vX.Y.Z" and source.commit = <new commit SHA> in
-#    .claude-plugin/marketplace.json, then commit and push that repo.
-
-# 5. Update an installed copy
-/plugin marketplace update gherlein-marketplace
-/plugin install gherlein@gherlein-marketplace
-/reload-plugins
+# 4. Publish in one step: tag vX.Y.Z and push main + tag
+make release
 ```
 
+`make release` reads the version straight from `plugin.json` (the single source
+of truth) and preflights before touching anything: on `main`, clean tree, valid
+semver, a matching `## vX.Y.Z` CHANGELOG entry, and the tag not already taken. It
+then tags the release and pushes `main` and the tag.
+
+`make release` finishes by printing the client-side steps it cannot run —
+refresh an installed copy with:
+
+```
+/plugin marketplace update gherlein-marketplace
+/plugin update gherlein@gherlein-marketplace
+```
+
+then restart the session (or `/reload-plugins`). Note `/plugin update`, not
+`install` — a plain install will not upgrade an already-installed plugin.
+
+Other Makefile targets: `make` (or `make help`) lists everything; `make check`
+(also `make build` / `make test` / `make run-tests`) runs the self-containment
+validation; `make clean` removes build scratch.
+
 Each shipped skill must be self-contained (no foreign plugin-namespace
-references). `scripts/check-self-contained.sh` enforces this, and a GitHub
-Actions workflow fails the build on any violation.
+references). `scripts/check-self-contained.sh` enforces this — `make release`
+runs it as a preflight, and a GitHub Actions workflow fails the build on any
+violation.
 
 ## Credits
 

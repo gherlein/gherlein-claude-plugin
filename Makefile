@@ -2,8 +2,11 @@
 #
 # This is a skills plugin -- there is no compiled artifact. "build" and "test"
 # therefore mean "validate the shippable skills", and the headline target is
-# `release`, which tags the current version and publishes it to the marketplace
-# repo so users actually receive it.
+# `release`, which tags the current version and pushes it so users receive it.
+#
+# This repo is self-hosting: its own .claude-plugin/marketplace.json lists the
+# plugin with a local "./" source, so there is no separate marketplace repo to
+# update -- tagging and pushing this repo IS the release.
 
 SHELL       := bash
 .SHELLFLAGS := -eu -o pipefail -c
@@ -12,13 +15,9 @@ SHELL       := bash
 
 # --- configuration -----------------------------------------------------------
 
-# The sibling marketplace repo whose marketplace.json pins this plugin's
-# ref+commit. Overridable: `make release MARKETPLACE_DIR=/path/to/repo`.
-MARKETPLACE_DIR ?= ../claude-marketplace
-
 MAIN_BRANCH := main
 PLUGIN_JSON := .claude-plugin/plugin.json
-MKT_JSON    := $(MARKETPLACE_DIR)/.claude-plugin/marketplace.json
+MKT_JSON    := .claude-plugin/marketplace.json
 
 # Version is read straight from plugin.json -- the single source of truth. A
 # release is authored by bumping plugin.json + CHANGELOG.md; `release` never
@@ -38,8 +37,6 @@ help: ## Show this help
 	@printf 'Targets:\n'
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	  | awk 'BEGIN {FS = ":.*?## "} {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
-	@printf '\nRelease config:\n'
-	@printf '  MARKETPLACE_DIR = %s\n' "$(MARKETPLACE_DIR)"
 
 # --- validation (build/test surface) -----------------------------------------
 
@@ -57,7 +54,7 @@ clean: ## Remove build scratch (bin/)
 
 # --- release -----------------------------------------------------------------
 
-release: check ## Tag plugin.json's version and publish it to the marketplace
+release: check ## Tag plugin.json's version and push it (self-hosting marketplace)
 	@printf '==> Preparing release %s\n' "$(TAG)"
 
 	# ----- preflight: version -----
@@ -68,13 +65,13 @@ release: check ## Tag plugin.json's version and publish it to the marketplace
 	  echo "ERROR: version '$(VERSION)' is not semver (X.Y.Z)" >&2; exit 1
 	fi
 
-	# ----- preflight: plugin repo state -----
+	# ----- preflight: repo state -----
 	branch="$$(git rev-parse --abbrev-ref HEAD)"
 	if [ "$$branch" != "$(MAIN_BRANCH)" ]; then
 	  echo "ERROR: on branch '$$branch', expected '$(MAIN_BRANCH)'" >&2; exit 1
 	fi
 	if [ -n "$$(git status --porcelain)" ]; then
-	  echo "ERROR: plugin working tree is not clean -- commit or stash first" >&2; exit 1
+	  echo "ERROR: working tree is not clean -- commit or stash first" >&2; exit 1
 	fi
 	if ! head -n 20 CHANGELOG.md | grep -qx "## $(TAG)"; then
 	  echo "ERROR: CHANGELOG.md has no '## $(TAG)' entry near the top" >&2; exit 1
@@ -89,18 +86,7 @@ release: check ## Tag plugin.json's version and publish it to the marketplace
 	  echo "note: tag $(TAG) already exists at HEAD -- reusing"
 	fi
 
-	# ----- preflight: marketplace repo state -----
-	if [ ! -d "$(MARKETPLACE_DIR)/.git" ]; then
-	  echo "ERROR: marketplace repo not found at $(MARKETPLACE_DIR)" >&2; exit 1
-	fi
-	if [ ! -f "$(MKT_JSON)" ]; then
-	  echo "ERROR: $(MKT_JSON) not found" >&2; exit 1
-	fi
-	if [ -n "$$(git -C "$(MARKETPLACE_DIR)" status --porcelain)" ]; then
-	  echo "ERROR: marketplace working tree is not clean" >&2; exit 1
-	fi
-
-	# ----- tag + push plugin repo -----
+	# ----- tag + push -----
 	if ! git rev-parse -q --verify "refs/tags/$(TAG)" >/dev/null; then
 	  echo "==> git tag -a $(TAG)"
 	  git tag -a "$(TAG)" -m "Release $(TAG)"
@@ -109,28 +95,11 @@ release: check ## Tag plugin.json's version and publish it to the marketplace
 	git push origin "$(MAIN_BRANCH)"
 	git push origin "$(TAG)"
 
-	# ----- update + push marketplace repo -----
-	echo "==> updating $(MKT_JSON): ref=$(TAG) commit=$$head_sha"
-	tmp="$$(mktemp)"
-	jq --arg name "$(PLUGIN_NAME)" --arg ref "$(TAG)" --arg commit "$$head_sha" \
-	  '(.plugins[] | select(.name == $$name) | .source) |= (.ref = $$ref | .commit = $$commit)' \
-	  "$(MKT_JSON)" > "$$tmp"
-	mv "$$tmp" "$(MKT_JSON)"
-
-	if git -C "$(MARKETPLACE_DIR)" diff --quiet -- .claude-plugin/marketplace.json; then
-	  echo "note: marketplace.json already at $(TAG) -- nothing to commit"
-	else
-	  short="$$(git rev-parse --short HEAD)"
-	  git -C "$(MARKETPLACE_DIR)" add .claude-plugin/marketplace.json
-	  git -C "$(MARKETPLACE_DIR)" commit -m "gherlein: publish $(TAG) ($$short)"
-	  git -C "$(MARKETPLACE_DIR)" push
-	fi
-
 	# ----- done: hand off the client-side steps make cannot run -----
 	mkt_name="$$(jq -r .name "$(MKT_JSON)")"
 	printf '\n'
 	printf '=== %s published ===\n' "$(TAG)"
-	printf 'Plugin tag + marketplace ref are live. Finish in the Claude Code client:\n\n'
+	printf 'Tag is live and the marketplace listing tracks this repo. Finish in the client:\n\n'
 	printf '  /plugin marketplace update %s\n' "$$mkt_name"
 	printf '  /plugin update %s@%s\n' "$(PLUGIN_NAME)" "$$mkt_name"
 	printf '  (restart the session so the plugin reloads)\n\n'
