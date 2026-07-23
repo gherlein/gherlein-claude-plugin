@@ -59,6 +59,40 @@ Specs capture intent, constraints, and design rationale that cannot be recovered
 - **Frontend -> API:** Request schemas, auth flow, optimistic updates, error display
 - **K8s deployment:** Resource limits, scaling policies, health checks, readiness gates
 
+## Cross-Tier Implementation Patterns
+
+Once the spec is authoritative, these ordered task sequences turn it into code for
+common project shapes. Each task should be single-responsibility, testable, and
+build on the previous one.
+
+### New Go Microservice
+1. Create service directory with standard layout (`cmd/`, `pkg/`, `internal/`)
+2. Define API contracts (protobuf/OpenAPI)
+3. Implement handlers and business logic
+4. Add tests and Dockerfile
+5. Create k8s manifests (deployment, service, configmap)
+6. Add to CI/CD pipeline
+
+### New Web Frontend Feature
+1. Define component hierarchy and data flow
+2. Create API types/interfaces matching backend contracts
+3. Implement components with tests
+4. Wire to API layer
+5. Add e2e test for user flow
+
+### New Embedded Feature (RP2040)
+1. Define hardware interface and protocol
+2. Implement driver/abstraction layer
+3. Add business logic (testable on host)
+4. Integration test on hardware
+5. Define data contract with upstream service (SBC or cloud)
+
+### Cross-Tier Feature (Embedded -> Cloud)
+1. Define data model and protocol at each boundary
+2. Implement bottom-up: device -> SBC gateway -> cloud service -> frontend
+3. Test each tier independently, then integration test the full path
+4. Add observability at each hop (trace IDs, structured logging)
+
 ## Knowledge Hierarchy
 
 - **Specs are primary** -> the authoritative record of requirements, architecture, constraints, and design decisions

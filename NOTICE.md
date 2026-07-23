@@ -16,30 +16,22 @@ ship are adapted derivatives under `skills/`.
 
 ## Derived skills
 
-The following skills in `skills/` are derived from the corresponding upstream
-Superpowers skills (namespace-rewritten and edited for this plugin). Each carries
-`source: obra/superpowers@<sha>` and `license: MIT` in its frontmatter:
+This plugin no longer ships any skills derived from Superpowers. The previously
+namespace-rewritten derivatives (`dispatching-parallel-agents`, `executing-plans`,
+`requesting-code-review`, `subagent-driven-development`, and earlier
+`brainstorming`, `finishing-a-development-branch`, `receiving-code-review`,
+`systematic-debugging`, `test-driven-development`, `using-git-worktrees`,
+`using-superpowers`, `verification-before-completion`, `writing-plans`,
+`writing-skills`) were removed in favor of installing the Superpowers plugin
+directly. Skills reference `superpowers:*` as a declared dependency, and
+`build-autonomous` preflights that the plugin
+(`superpowers@claude-plugins-official`) is installed before running.
 
-- brainstorming
-- dispatching-parallel-agents
-- executing-plans
-- finishing-a-development-branch
-- receiving-code-review
-- requesting-code-review
-- subagent-driven-development
-- systematic-debugging
-- test-driven-development
-- using-git-worktrees
-- using-superpowers
-- verification-before-completion
-- writing-plans
-- writing-skills
+The pristine upstream snapshot under `vendor/superpowers/` remains as the
+attribution baseline and diff target for controlled comparison; it is not shipped
+as active skills.
 
-The file `skills/writing-skills/anthropic-best-practices.md` is derived from
-Anthropic's Claude Code skill-authoring documentation and is Copyright (c)
-Anthropic.
-
-All other skills in this plugin are original works Copyright (c) 2026 Greg Herlein.
+All skills in this plugin are original works Copyright (c) 2026 Greg Herlein.
 
 ## Upstream MIT License
 

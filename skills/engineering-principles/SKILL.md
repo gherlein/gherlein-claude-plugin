@@ -74,3 +74,14 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 2. **Plan** for non-trivial changes -- use plan mode.
 3. **Execute** in focused increments with tests.
 4. **Validate** -- run build, tests, linters, check with `git diff`.
+
+## Domain references
+
+Multi-target (Go / web / embedded RP2040 / K8s) cheat-sheets that support the
+process skills, loaded on demand:
+
+- `references/debugging-by-domain.md` -- 5 Whys root-cause discipline and the
+  debug-tooling table per target. Pairs with `superpowers:systematic-debugging`.
+- `references/review-safety-by-domain.md` -- correctness/safety review checklist
+  per target. Pairs with Claude's `/code-review` and `/security-review` commands
+  and `superpowers:requesting-code-review`.

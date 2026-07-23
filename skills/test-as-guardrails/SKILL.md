@@ -7,6 +7,14 @@ description: "Three-context testing workflow that prevents specification gaming,
 
 Tests are living documentation that agents read to understand intent.
 
+**Composes with `superpowers:test-driven-development`.** That skill owns the core
+write-test-first loop (failing test -> implement -> Red-Green-Refactor). This skill
+adds what TDD does not cover: the three-fresh-contexts workflow that defeats
+specification gaming, the per-domain testing patterns, and the test-quality bar.
+Use TDD for the loop; use this for whether the resulting tests are meaningful.
+(The Superpowers plugin provides `test-driven-development`; `build-autonomous`
+preflights that it is installed.)
+
 ## Three-Context Workflow (prevents specification gaming)
 
 **Context A:** Write implementation code

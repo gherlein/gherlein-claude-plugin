@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: Bootstrap CLAUDE.md and hierarchical context files for a new or unfamiliar codebase
+description: Layer hierarchical and multi-service context files onto a codebase after the base CLAUDE.md exists (use /init for that base). Covers subdirectory overrides, per-service CLAUDE.md, and monorepo layout.
 disable-model-invocation: true
 ---
 
@@ -17,24 +17,14 @@ Before making any changes:
 - Find existing patterns for the type of change needed
 - Read existing tests to understand testing approach
 
-### 2. Generate CLAUDE.md
-If a project doesn't have one:
-
-```
-Generate CLAUDE.md for this project. Search for architecture, tech stack,
-build system, test conventions, coding style, and deployment.
-
-Create a concise file (<=200 lines) with sections:
-- Tech Stack
-- Build Commands (build, test, lint, deploy)
-- Architecture Overview
-- Key Directories
-- Coding Conventions
-- Critical Constraints
-- Common Pitfalls
-
-Do NOT duplicate README content. Focus on what an AI agent needs to know.
-```
+### 2. Generate the base CLAUDE.md
+If a project doesn't have one, use Claude Code's built-in `/init` command -- it
+scans the codebase and writes a root `CLAUDE.md`. This skill does not duplicate
+that. Keep the result concise (<=200 lines), focused on what an AI agent needs
+(tech stack, build/test/lint/deploy commands, architecture, key directories,
+conventions, critical constraints, common pitfalls), and do not duplicate README
+content. The value this skill adds is everything below: the hierarchical and
+multi-service structure `/init` does not produce.
 
 ### 3. Use Hierarchical Context Files
 - `~/.claude/CLAUDE.md` - Global preferences (concise, verify assumptions, Go idioms)

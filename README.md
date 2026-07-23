@@ -2,7 +2,7 @@
 
 A Claude Code plugin of engineering-discipline skills: planning, code quality,
 Go, TypeScript, PostgreSQL, git workflow, debugging, and full design-build-test
-workflows. It ships 30 skills that either auto-trigger when your request matches
+workflows. It ships 22 skills that either auto-trigger when your request matches
 their subject or run deliberately by name.
 
 Disclaimer: This works for me — that's the entire guarantee. Built with AI
@@ -22,6 +22,27 @@ once, then install:
 /reload-plugins
 ```
 
+### Prerequisite: the Superpowers plugin
+
+This plugin builds on the [Superpowers](https://github.com/obra/superpowers)
+pipeline rather than duplicating it. Several skills reference `superpowers:*`
+skills explicitly (planning, execution, TDD, systematic debugging, code review),
+and `build-autonomous` cannot run without them — it opens with a **preflight** that
+checks `~/.claude/plugins/installed_plugins.json` and stops with install
+instructions if Superpowers is absent.
+
+Install it alongside this plugin:
+
+```
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install superpowers@claude-plugins-official
+/reload-plugins
+```
+
+The lighter skills (`engineering-principles`, `test-as-guardrails`, `spec-driven`)
+work on their own; they only *hand off* to Superpowers when it is present, so they
+degrade gracefully without it.
+
 ## Updating
 
 The marketplace listing tracks this repo directly, so refreshing it pulls the
@@ -40,10 +61,10 @@ skills into your current session without a restart.
 ## Using the skills
 
 Skills are namespaced under `gherlein:` — invoke any of them explicitly with
-`/gherlein:<name>` (e.g. `/gherlein:code-review`).
+`/gherlein:<name>` (e.g. `/gherlein:refactoring`).
 
 - **Auto-triggering skills** fire on their own when your request matches their
-  subject — asking to review code invokes `code-review`, asking about a slow Go
+  subject — asking to refactor invokes `refactoring`, asking about a slow Go
   hot path invokes `go-performance`, and so on. You don't have to name them.
 - **Manual-only skills** (marked *manual* below) are heavier workflows that run
   only when you invoke them by name. These are the multi-phase orchestration and
@@ -54,13 +75,14 @@ Skills are namespaced under `gherlein:` — invoke any of them explicitly with
 | Skill | Mode | Purpose |
 |-------|------|---------|
 | `build-autonomous` | manual | Two interactive gates (vision → requirements), then an autonomous design-build-test-review-document cycle |
-| `plan` | manual | Four-phase planning for non-trivial features spanning multiple packages, services, or tiers |
-| `spec-driven` | auto | Treat spec docs (`REQUIREMENTS.md`, `docs/DESIGN.md`) as the authoritative source; code implements them |
-| `engineering-principles` | auto | Think-before-coding, simplicity-first, surgical changes, goal-driven execution |
-| `subagent-driven-development` | manual | Execute an implementation plan's independent tasks with a two-stage review protocol |
-| `executing-plans` | manual | Execute a pre-written plan in a fresh session with review checkpoints |
-| `dispatching-parallel-agents` | manual | Run 2+ independent tasks concurrently across subagents |
-| `three-experts` | manual | Multi-perspective analysis for complex architecture and design decisions |
+| `spec-driven` | auto | Treat spec docs (`REQUIREMENTS.md`, `docs/DESIGN.md`) as the authoritative source; code implements them. Includes cross-tier implementation templates. |
+| `engineering-principles` | auto | Think-before-coding, simplicity-first, surgical changes, goal-driven execution. References for debugging and review safety per target. |
+
+> The generic planning and execution flows (`plan`, `writing-plans`,
+> `subagent-driven-development`, `executing-plans`, `dispatching-parallel-agents`)
+> and multi-perspective analysis (`three-experts`) are not shipped here — install
+> the [Superpowers](https://github.com/obra/superpowers) plugin for those.
+> `build-autonomous` orchestrates the Superpowers pipeline and expects it present.
 
 #### The `build-autonomous` loop
 
@@ -91,12 +113,14 @@ plugin owns everything downstream of them.
 
 | Skill | Mode | Purpose |
 |-------|------|---------|
-| `code-review` | auto | Four-category review framework (architecture, quality, maintainability, correctness) |
 | `edge-case-discovery` | auto | Two-step discovery of missing edge cases, with Go / web / RP2040 / K8s checklists |
 | `test-as-guardrails` | auto | Three-context testing workflow that prevents specification gaming |
 | `refactoring` | auto | Safe incremental refactoring with continuous test verification |
 | `clean-comments` | auto | Remove obvious, redundant, or process-narrating comments (WHY-not-WHAT) |
-| `refine` | manual | Progressive solution improvement over three rounds of critical analysis |
+
+> Code review itself is not a shipped skill — use Claude's `/code-review` and
+> `/security-review` commands (or Superpowers' `requesting-code-review`). The
+> per-target correctness/safety checklist lives in `engineering-principles`.
 
 ### Standards & conventions
 
@@ -111,7 +135,6 @@ plugin owns everything downstream of them.
 | Skill | Mode | Purpose |
 |-------|------|---------|
 | `git-ops` | auto | Commit-message conventions, cherry-pick, rebase conflict resolution |
-| `requesting-code-review` | manual | Verify work meets requirements before declaring done or merging |
 
 ### Language & domain
 
@@ -123,19 +146,19 @@ plugin owns everything downstream of them.
 | `rest-api-design` | auto | Status codes, pagination, error format, auth, caching, OpenAPI |
 | `web-frontend` | auto | React / TypeScript / Tailwind / shadcn conventions and testing |
 | `api-canary` | auto | Discover exposed endpoints, then generate a black-box canary test framework |
+| `unifi-fixed-hosts` | auto | Read/add/delete fixed IP (DHCP reservation) assignments on a UniFi/UDM controller |
 
-### Docs & debugging
+### Docs
 
 | Skill | Mode | Purpose |
 |-------|------|---------|
 | `documentation` | auto | README structure, writing style, Mermaid diagrams, API and design docs |
-| `evidence-based-debugging` | auto | Closed-loop debugging with 5 Whys and Go / web / embedded / K8s tools |
 
 ### Understanding & onboarding
 
 | Skill | Mode | Purpose |
 |-------|------|---------|
-| `onboard` | manual | Bootstrap `CLAUDE.md` and hierarchical context files for a new codebase |
+| `onboard` | manual | Layer hierarchical / multi-service context files onto a codebase (use `/init` for the base `CLAUDE.md`) |
 | `reverse-engineer` | manual | 10-phase framework for systematic source analysis and architecture docs |
 | `learn` | manual | Document tricky problems and their solutions for future reference |
 
@@ -159,7 +182,7 @@ Authoring a release is two hand edits; publishing it is one command.
 #    "## vX.Y.Z" entry to the top of CHANGELOG.md
 
 # 3. Commit on main (make release requires a clean working tree)
-make check                          # validate skills are self-contained
+make check                          # validate skill dependency references
 git commit -am "Release vX.Y.Z: <summary>"
 
 # 4. Publish in one step: tag vX.Y.Z and push main + tag
@@ -186,20 +209,25 @@ Other Makefile targets: `make` (or `make help`) lists everything; `make check`
 (also `make build` / `make test` / `make run-tests`) runs the self-containment
 validation; `make clean` removes build scratch.
 
-Each shipped skill must be self-contained (no foreign plugin-namespace
-references). `scripts/check-self-contained.sh` enforces this — `make release`
-runs it as a preflight, and a GitHub Actions workflow fails the build on any
-violation.
+Each shipped skill may reference only **declared** plugin namespaces — its own
+`gherlein:` and the `superpowers:` dependency. A reference to any other plugin
+namespace is an undeclared dependency and fails validation.
+`scripts/check-self-contained.sh` enforces this — `make release` runs it as a
+preflight, and a GitHub Actions workflow fails the build on any violation. To add
+a new dependency, append its namespace to the script's allow-list *and* document
+it here plus preflight it in the skill that needs it (as `build-autonomous` does
+for Superpowers).
 
 ## Credits
 
-Four skills in this plugin are derived from the **Superpowers** project by Jesse
-Vincent (https://github.com/obra/superpowers), used under the MIT License and
-Copyright (c) 2025 Jesse Vincent: `dispatching-parallel-agents`,
-`executing-plans`, `requesting-code-review`, and `subagent-driven-development`.
-A pristine upstream snapshot is vendored at `vendor/superpowers/` and pinned in
-`vendor/superpowers/PINNED_AT.txt`. See [`NOTICE.md`](NOTICE.md) for the full
-attribution.
+This plugin no longer ships any skills derived from the **Superpowers** project by
+Jesse Vincent (https://github.com/obra/superpowers); the previously-vendored
+derivatives were removed in favor of installing Superpowers directly.
+`build-autonomous` orchestrates the Superpowers pipeline and expects that plugin to
+be installed. A pristine upstream snapshot remains vendored at `vendor/superpowers/`
+(pinned in `vendor/superpowers/PINNED_AT.txt`) as the attribution baseline and diff
+target, used under the MIT License and Copyright (c) 2025 Jesse Vincent. See
+[`NOTICE.md`](NOTICE.md) for the full attribution.
 
-All other skills are original works Copyright (c) 2026 Greg Herlein. This project
-is MIT-licensed; see [`LICENSE`](LICENSE).
+All skills in this plugin are original works Copyright (c) 2026 Greg Herlein. This
+project is MIT-licensed; see [`LICENSE`](LICENSE).

@@ -40,7 +40,7 @@ help: ## Show this help
 
 # --- validation (build/test surface) -----------------------------------------
 
-check: ## Validate skills are self-contained (no foreign plugin namespaces)
+check: ## Validate skills reference only declared namespaces (gherlein:, superpowers:)
 	@scripts/check-self-contained.sh
 
 build: check ## Validate the plugin is shippable (alias for check)

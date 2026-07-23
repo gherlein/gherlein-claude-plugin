@@ -23,8 +23,8 @@ duplicate superpowers' execution machinery.
 ## How this composes with superpowers
 
 **Default: superpowers owns the build loop.** The native pipeline runs as-is --
-`brainstorming` -> `writing-plans` -> `subagent-driven-development` (or
-`executing-plans`) -> `finishing-a-development-branch` -- at its native paths
+`superpowers:brainstorming` -> `superpowers:writing-plans` -> `superpowers:subagent-driven-development` (or
+`superpowers:executing-plans`) -> `superpowers:finishing-a-development-branch` -- at its native paths
 (`docs/superpowers/specs/`, `docs/superpowers/plans/`) and with its native gates
 (design approval, spec review, plan review). `build-autonomous` adds security-rules
 loading, the `test-as-guardrails` edge matrix, `api-canary`, and a 3-way final
@@ -38,12 +38,36 @@ D final gates, Phase E finish) is unchanged.
 
 **Human interaction:** gated only at the superpowers front-end (design, spec, plan
 reviews). Once the plan is approved, execution runs continuously -- break only when
-a downstream skill (`systematic-debugging`, a review gate) genuinely needs a
+a downstream skill (`superpowers:systematic-debugging`, a review gate) genuinely needs a
 decision.
 
 **Version-control rhythm:** all work happens on the dedicated branch created in
 Phase A, never on `main`. Superpowers' TDD loop commits frequently; the branch is
 the unit of work integrated in Phase E.
+
+## Phase 0: Preflight -- verify the Superpowers dependency (hard gate)
+
+This skill is a conductor over the Superpowers pipeline; it cannot run without it.
+Verify the plugin is installed **before doing anything else**. Read the
+authoritative install record and stop if it is absent -- do not proceed degraded:
+
+```bash
+grep -q '"superpowers@' ~/.claude/plugins/installed_plugins.json 2>/dev/null \
+  && echo "superpowers: installed" \
+  || echo "superpowers: MISSING -- install required"
+```
+
+If missing, a skill cannot self-install (only the user can run `/plugin`). Print
+these steps, tell the user to run them, and **stop**:
+
+```
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install superpowers@claude-plugins-official
+/reload-plugins
+```
+
+Then have the user re-invoke `build-autonomous`. Only continue to Phase A once the
+check reports `installed`.
 
 ## Phase A: Setup (gherlein, before superpowers)
 
@@ -65,10 +89,10 @@ the unit of work integrated in Phase E.
 Run the superpowers front-end natively -- no output redirection, native paths,
 native gates:
 
-1. **Invoke `brainstorming`.** Let it run its full flow: dialogue, 2-3 approaches,
+1. **Invoke `superpowers:brainstorming`.** Let it run its full flow: dialogue, 2-3 approaches,
    design sections, spec self-review, and the user spec-review gate. It writes the
    design spec to `docs/superpowers/specs/`.
-2. **Let it hand off to `writing-plans`.** It produces the bite-sized, TDD-structured
+2. **Let it hand off to `superpowers:writing-plans`.** It produces the bite-sized, TDD-structured
    plan at `docs/superpowers/plans/`, with its own plan self-review.
 3. **Inject gherlein plan requirements** before execution begins -- the plan must
    bake in:
@@ -79,18 +103,18 @@ native gates:
      `api-canary` tasks -- a standalone black-box canary (`canary/`, no service
      imports) is a deliverable, not an afterthought;
    - `makefile-builds` and `gitignore-policy` conformance.
-   If `writing-plans` did not already cover these, extend the plan before handing it
+   If `superpowers:writing-plans` did not already cover these, extend the plan before handing it
    to the executor.
 
 ## Phase C: Build (superpowers executor -- DEFAULT)
 
-Let `writing-plans` hand off to its executor and **do not intercept**:
+Let `superpowers:writing-plans` hand off to its executor and **do not intercept**:
 
-- **`subagent-driven-development`** (recommended) -- fresh implementer per task,
+- **`superpowers:subagent-driven-development`** (recommended) -- fresh implementer per task,
   per-task spec+quality review loops, durable progress ledger, continuous execution.
-- **`executing-plans`** -- for a separate/parallel session with batched checkpoints.
+- **`superpowers:executing-plans`** -- for a separate/parallel session with batched checkpoints.
 
-Its per-task `test-driven-development` loop does the building. **Inject gherlein
+Its per-task `superpowers:test-driven-development` loop does the building. **Inject gherlein
 review dimensions:** when constructing task-reviewer and final-reviewer prompts,
 add the loaded `security-rules` and the `test-as-guardrails` quality bar (strict
 assertions, edge matrix, no self-mocking) as explicit review criteria.
@@ -116,12 +140,12 @@ These run **in addition to** superpowers' final whole-branch review, not instead
 3. **API drift.** For API projects, run the `api-canary` smoke + contract tiers
    against a running instance from outside the process, and `make drift` to confirm
    no exposed endpoint is undocumented or missing.
-4. **Verification.** Invoke `verification-before-completion` before declaring done
+4. **Verification.** Invoke `superpowers:verification-before-completion` before declaring done
    -- evidence before any success claim. Do not skip it.
 
 ## Phase E: Finish (superpowers)
 
-Invoke `finishing-a-development-branch`: it verifies tests, determines the base
+Invoke `superpowers:finishing-a-development-branch`: it verifies tests, determines the base
 branch, and carries out the user's chosen integration (merge or PR) with real
 `git`/`gh` actions, including branch cleanup. Remind the user which branch they are
 on first.
@@ -132,7 +156,7 @@ on first.
   user explicitly asks for the gherlein engine.
 - **Never skip the final gates** -- the 3-way review, remediation, drift check (for
   API projects), and verification-before-completion are additive and mandatory.
-- **Never leave failing tests** -- `systematic-debugging` diagnoses before any fix.
+- **Never leave failing tests** -- `superpowers:systematic-debugging` diagnoses before any fix.
 - **Tests must be meaningful** -- `test-as-guardrails` governs test quality in the
   plan and as a review dimension; strict assertions, edge matrix, mocking last.
 - **External API validation** -- for network-API projects, `api-canary` is mandatory.
@@ -147,8 +171,9 @@ User says:
 > "build-autonomous: [requirements]"
 > "/build-autonomous [requirements]"
 
-Regardless of detail provided, the workflow opens with Phase A setup and the
-interactive superpowers front-end (Phase B). After the plan-review gate clears,
+Regardless of detail provided, the workflow opens with the Phase 0 Superpowers
+preflight (stop if the plugin is missing), then Phase A setup and the interactive
+superpowers front-end (Phase B). After the plan-review gate clears,
 run Phases C-E continuously with no human interaction unless a downstream skill
 requires it. To use the gherlein engine instead of superpowers' executor, the user
 must say so explicitly.
@@ -187,14 +212,14 @@ module/service), and Review agents.
 
 ### G3: Phased Implementation
 
-Each Implementation Agent invokes `test-driven-development` (failing test first,
+Each Implementation Agent invokes `superpowers:test-driven-development` (failing test first,
 Red-Green-Refactor) and `test-as-guardrails` (test quality). Where subagents exist,
 use the three-context workflow (implement, test, and triage in separate fresh
 contexts) to defeat specification gaming. Build the `api-canary` module alongside
 the code for API projects.
 
 Implement one phase at a time. After each phase: run all phase tests, the smoke
-suite, and race checks where supported; on any failure invoke `systematic-debugging`
+suite, and race checks where supported; on any failure invoke `superpowers:systematic-debugging`
 before fixing; do not advance with failing tests; commit the phase as a rollback
 point.
 
@@ -202,5 +227,5 @@ point.
 
 Run the entire suite end-to-end, the smoke suite and race checks, the build, and
 linters. For API projects, run the `api-canary` smoke + contract tiers against a
-running instance and `make drift`. On any failure, `systematic-debugging` then
+running instance and `make drift`. On any failure, `superpowers:systematic-debugging` then
 iterate until green. Then rejoin Phase D.

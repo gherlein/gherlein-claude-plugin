@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.9.0
+
+- Remove 9 skills that duplicated better-maintained equivalents, taking the plugin
+  from 31 to 22 skills:
+  - The four vendored Superpowers derivatives (`dispatching-parallel-agents`,
+    `executing-plans`, `requesting-code-review`, `subagent-driven-development`) --
+    install the Superpowers plugin for these. `build-autonomous` orchestrates the
+    Superpowers pipeline via explicit `superpowers:*` references.
+  - `evidence-based-debugging` and `code-review` -- superseded by Superpowers'
+    `systematic-debugging` and by Claude's `/code-review` + `/security-review`
+    (and Superpowers' `requesting-code-review`). Their unique per-target content
+    was salvaged into `engineering-principles/references/debugging-by-domain.md`
+    and `review-safety-by-domain.md`.
+  - `plan` -- superseded by Superpowers' `writing-plans`; its cross-tier
+    implementation templates were folded into `spec-driven`.
+  - `three-experts` and `refine` -- generic prompt-frameworks now covered by
+    Superpowers' `brainstorming` and the Workflow judge-panel pattern.
+- `test-as-guardrails`: reframed to compose with (not duplicate) a test-first
+  workflow; it now owns the anti-gaming three-context workflow and test-quality bar.
+- `onboard`: narrowed to hierarchical / multi-service context layering; the base
+  `CLAUDE.md` generation now defers to Claude's `/init`.
+- Declare Superpowers as a runtime dependency instead of vendoring it. Skills now
+  reference `superpowers:*` explicitly; `scripts/check-self-contained.sh` was
+  relaxed from a self-containment rule to a declared-dependency rule (permits
+  `gherlein:` and `superpowers:`, rejects any other plugin namespace).
+- `build-autonomous`: add a Phase 0 preflight that verifies the Superpowers plugin
+  is installed (reads `~/.claude/plugins/installed_plugins.json`) and stops with
+  `/plugin` install instructions if it is absent, rather than proceeding degraded.
+  Document Superpowers as a prerequisite in the README.
+- Add the missing `unifi-fixed-hosts` row to the README skill tables.
+
 ## v1.8.0
 
 - Add a `make release` target that publishes the version in `plugin.json`: it
